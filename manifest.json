@@ -1,0 +1,5 @@
+{
+  "ext": ".dart",
+  "mode": "sidecar",
+  "run_entrypoint": "./run"
+}

@@ -1,2 +1,2 @@
-# cmsc124-lab0-dart
-CMSC 124 Lab 0 - Dart
+A sample command-line application with an entrypoint in `bin/`, library code
+in `lib/`, and example unit test in `test/`.
