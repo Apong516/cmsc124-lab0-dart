@@ -1,0 +1,6 @@
+Token(type=STRING, lexeme=""Cube"", literal=Cube, line=1)
+Token(type=FRAMEDURATION, lexeme="30f", literal=30, line=1)
+Token(type=TIMEDURATION, lexeme="3.5s", literal=3.5, line=1)
+Token(type=ARROW, lexeme="->", literal=null, line=1)
+Token(type=DOTDOT, lexeme="..", literal=null, line=1)
+Token(type=EOF, lexeme="", literal=null, line=1)
