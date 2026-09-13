@@ -118,10 +118,81 @@ class Scanner {
         _line++;
         break;
 
+      case '"':
+        _string();
+        break;
+
       default:
-        _error(_line, "Unexpected character '$c'.");
+        if (_isDigit(c)) {
+          _numberOrDuration();
+        } else if (_isAlpha(c)) {
+          _identifier();
+        } else {
+          _error(_line, "Unexpected character '$c'.");
+        }
         break;
     }
+  }
+
+  void _identifier() {
+    while (_isAlphaNumeric(_peek())) {
+      _advance();
+    }
+
+    String text = source.substring(_start, _current);
+    TokenType? type = _keywords[text];
+
+    if (type == null) {
+      _addToken(TokenType.identifier);
+    } else if (type == TokenType.boolean) {
+      _addToken(type, text == 'true');
+    } else if (type == TokenType.nil) {
+      _addToken(type, null);
+    } else {
+      _addToken(type);
+    }
+  }
+
+  void _numberOrDuration() {
+    while (_isDigit(_peek())) {
+      _advance();
+    }
+
+    if (_peek() == '.' && _isDigit(_peekNext())) {
+      _advance();
+      while (_isDigit(_peek())) {
+        _advance();
+      }
+    }
+
+    if (_peek() == 'f' || _peek() == 'F') {
+      _advance();
+      String text = source.substring(_start, _current - 1);
+      _addToken(TokenType.frameDuration, int.parse(text));
+    } else if (_peek() == 's' || _peek() == 'S') {
+      _advance();
+      String text = source.substring(_start, _current - 1);
+      _addToken(TokenType.timeDuration, double.parse(text));
+    } else {
+      String text = source.substring(_start, _current);
+      _addToken(TokenType.number, num.parse(text));
+    }
+  }
+
+  void _string() {
+    while (_peek() != '"' && !_isAtEnd()) {
+      if (_peek() == '\n') _line++;
+      _advance();
+    }
+
+    if (_isAtEnd()) {
+      _error(_line, "Unterminated string.");
+      return;
+    }
+
+    _advance();
+    String value = source.substring(_start + 1, _current - 1);
+    _addToken(TokenType.string, value);
   }
 
   bool _match(String expected) {
@@ -136,7 +207,27 @@ class Scanner {
     return source[_current];
   }
 
+  String _peekNext() {
+    if (_current + 1 >= source.length) return '\x00';
+    return source[_current + 1];
+  }
+
   String _advance() => source[_current++];
+
+  bool _isAlpha(String c) {
+    return (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
+            c.codeUnitAt(0) <= 'z'.codeUnitAt(0)) ||
+        (c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
+            c.codeUnitAt(0) <= 'Z'.codeUnitAt(0)) ||
+        c == '_';
+  }
+
+  bool _isAlphaNumeric(String c) => _isAlpha(c) || _isDigit(c);
+
+  bool _isDigit(String c) {
+    return c.codeUnitAt(0) >= '0'.codeUnitAt(0) &&
+        c.codeUnitAt(0) <= '9'.codeUnitAt(0);
+  }
 
   void _addToken(TokenType type, [Object? literal]) {
     String text = source.substring(_start, _current);

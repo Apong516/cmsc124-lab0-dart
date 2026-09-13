@@ -1,6 +1,6 @@
 import 'dart:io';
-import '../lib/scanner.dart';
-import '../lib/token.dart';
+import 'package:cmsc124_lab0_dart/scanner.dart';
+import 'package:cmsc124_lab0_dart/token.dart';
 
 void main(List<String> args) {
   if (args.isEmpty) {
