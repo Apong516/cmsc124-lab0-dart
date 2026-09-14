@@ -26,6 +26,10 @@ void runFile(String path) {
   Scanner scanner = Scanner(source);
   List<Token> tokens = scanner.scanTokens();
 
+  if (scanner.hadError) {
+    exit(65);
+  }
+
   for (Token token in tokens) {
     print(token);
   }
@@ -39,6 +43,10 @@ void runRepl() {
 
     Scanner scanner = Scanner(line);
     List<Token> tokens = scanner.scanTokens();
+
+    if (scanner.hadError) {
+      continue;
+    }
 
     for (Token token in tokens) {
       print(token);

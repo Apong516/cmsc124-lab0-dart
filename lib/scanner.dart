@@ -21,6 +21,7 @@ class Scanner {
   };
 
   Scanner(this.source);
+  bool get hadError => _hadError;
 
   List<Token> scanTokens() {
     while (!_isAtEnd()) {
@@ -30,9 +31,7 @@ class Scanner {
 
     tokens.add(Token(TokenType.eof, "", null, _line));
 
-    if (_hadError) {
-      exit(65);
-    }
+    // Error handling is done by the caller.
 
     return tokens;
   }
