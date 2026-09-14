@@ -1,0 +1,6 @@
+Token(type=KEYWORDOBJECT, lexeme="object", literal=null, line=1)
+Token(type=IDENTIFIER, lexeme="objectName", literal=null, line=1)
+Token(type=IDENTIFIER, lexeme="my_object", literal=null, line=1)
+Token(type=IDENTIFIER, lexeme="_test", literal=null, line=1)
+Token(type=IDENTIFIER, lexeme="test123", literal=null, line=1)
+Token(type=EOF, lexeme="", literal=null, line=1)

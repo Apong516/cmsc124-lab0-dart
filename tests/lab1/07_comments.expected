@@ -1,0 +1,3 @@
+Token(type=KEYWORDOBJECT, lexeme="object", literal=null, line=1)
+Token(type=KEYWORDBEHAVIOR, lexeme="behavior", literal=null, line=2)
+Token(type=EOF, lexeme="", literal=null, line=2)
