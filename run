@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 # run
+
+if [[ "$1" == *.dart ]]; then
+  exec dart "$@"
+fi
+
 binary=./build/interpreter
 exec "$binary" "$@"
