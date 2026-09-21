@@ -57,6 +57,9 @@ class Scanner {
       case ',':
         _addToken(TokenType.comma);
         break;
+      case ':':
+        _addToken(TokenType.colon);
+        break;
       case '+':
         _addToken(TokenType.plus);
         break;
@@ -66,12 +69,25 @@ class Scanner {
       case '*':
         _addToken(TokenType.star);
         break;
+      case '#':
+        _hexColor();
+        break;
 
       case '-':
         if (_match('>')) {
           _addToken(TokenType.arrow);
         } else {
           _addToken(TokenType.minus);
+        }
+        break;
+
+      case '@':
+        if (_match('+')) {
+          _addToken(TokenType.atPlus);
+        } else if (_match('-')) {
+          _addToken(TokenType.atMinus);
+        } else {
+          _error(_line, "Expected '+' or '-' after '@'.");
         }
         break;
 
@@ -173,6 +189,14 @@ class Scanner {
       _advance();
       String text = source.substring(_start, _current - 1);
       _addToken(TokenType.timeDuration, double.parse(text));
+    } else if (_peek() == 'd' && _peekNext() == 'e') {
+      _advance(); // consume 'd'
+      if (_peek() == 'e' && _peekNext() == 'g') {
+        _advance(); // consume 'e'
+        _advance(); // consume 'g'
+        String text = source.substring(_start, _current - 3);
+        _addToken(TokenType.angleDegree, double.parse(text));
+      }
     } else {
       String text = source.substring(_start, _current);
       _addToken(TokenType.number, num.parse(text));
@@ -232,6 +256,22 @@ class Scanner {
   void _addToken(TokenType type, [Object? literal]) {
     String text = source.substring(_start, _current);
     tokens.add(Token(type, text, literal, _line));
+  }
+
+  void _hexColor() {
+    while (_isHexDigit(_peek())) {
+      String text = source.substring(_start, _current);
+      _addToken(TokenType.colorHex, text);
+    }
+  }
+
+  bool _isHexDigit(String c) {
+    //checks if character is a valid hexadecimal digit
+    return _isDigit(c) ||
+        (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
+            c.codeUnitAt(0) <= 'f'.codeUnitAt(0)) ||
+        (c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
+            c.codeUnitAt(0) <= 'F'.codeUnitAt(0));
   }
 
   void _error(int line, String message) {

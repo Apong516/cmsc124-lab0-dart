@@ -6,6 +6,7 @@ enum TokenType {
   rightBrace,
   comma,
   dot,
+  colon, // used for property binding ("Cube:location")
   minus,
   plus,
   semicolon,
@@ -14,6 +15,8 @@ enum TokenType {
 
   // Character operators
   arrow,
+  atPlus, // @+
+  atMinus, // @-
   equal,
   equalEqual,
   bangEqual,
@@ -27,6 +30,8 @@ enum TokenType {
   identifier,
   string,
   number,
+  angleDegree, // 180deg
+  colorHex, // #ffffff
   frameDuration,
   timeDuration,
   boolean,
