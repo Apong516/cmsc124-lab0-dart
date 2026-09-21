@@ -4,6 +4,7 @@ import 'token.dart';
 class Scanner {
   final String source;
   final List<Token> tokens = [];
+
   int _start = 0;
   int _current = 0;
   int _line = 1;
@@ -15,13 +16,14 @@ class Scanner {
     'sequence': TokenType.keywordSequence,
     'at': TokenType.keywordAt,
     'over': TokenType.keywordOver,
-    'dump': TokenType.keywordDump, // added mapping for dump
+    'dump': TokenType.keywordDump,
     'true': TokenType.boolean,
     'false': TokenType.boolean,
     'nil': TokenType.nil,
   };
 
   Scanner(this.source);
+
   bool get hadError => _hadError;
 
   List<Token> scanTokens() {
@@ -32,8 +34,6 @@ class Scanner {
 
     tokens.add(Token(TokenType.eof, "", null, _line));
 
-    // Error handling is done by the caller.
-
     return tokens;
   }
 
@@ -41,34 +41,44 @@ class Scanner {
 
   void _scanToken() {
     String c = _advance();
+
     switch (c) {
       case '(':
         _addToken(TokenType.leftParen);
         break;
+
       case ')':
         _addToken(TokenType.rightParen);
         break;
+
       case '{':
         _addToken(TokenType.leftBrace);
         break;
+
       case '}':
         _addToken(TokenType.rightBrace);
         break;
+
       case ',':
         _addToken(TokenType.comma);
         break;
+
       case ':':
         _addToken(TokenType.colon);
         break;
+
       case '+':
         _addToken(TokenType.plus);
         break;
+
       case ';':
         _addToken(TokenType.semicolon);
         break;
+
       case '*':
         _addToken(TokenType.star);
         break;
+
       case '#':
         _hexColor();
         break;
@@ -110,8 +120,11 @@ class Scanner {
         break;
 
       case '=':
-        _addToken(_match('=') ? TokenType.equalEqual : TokenType.equal);
+        _addToken(
+          _match('=') ? TokenType.equalEqual : TokenType.equal,
+        );
         break;
+
       case '!':
         if (_match('=')) {
           _addToken(TokenType.bangEqual);
@@ -119,17 +132,24 @@ class Scanner {
           _error(_line, "Unexpected character '!'.");
         }
         break;
+
       case '<':
-        _addToken(_match('=') ? TokenType.lessEqual : TokenType.less);
+        _addToken(
+          _match('=') ? TokenType.lessEqual : TokenType.less,
+        );
         break;
+
       case '>':
-        _addToken(_match('=') ? TokenType.greaterEqual : TokenType.greater);
+        _addToken(
+          _match('=') ? TokenType.greaterEqual : TokenType.greater,
+        );
         break;
 
       case ' ':
       case '\r':
       case '\t':
         break;
+
       case '\n':
         _line++;
         break;
@@ -176,36 +196,75 @@ class Scanner {
 
     if (_peek() == '.' && _isDigit(_peekNext())) {
       _advance();
+
       while (_isDigit(_peek())) {
         _advance();
       }
     }
 
+    // Frame duration: 30f
     if (_peek() == 'f' || _peek() == 'F') {
       _advance();
+
       String text = source.substring(_start, _current - 1);
-      _addToken(TokenType.frameDuration, int.parse(text));
-    } else if (_peek() == 's' || _peek() == 'S') {
-      _advance();
-      String text = source.substring(_start, _current - 1);
-      _addToken(TokenType.timeDuration, double.parse(text));
-    } else if (_peek() == 'd' && _peekNext() == 'e') {
-      _advance(); // consume 'd'
-      if (_peek() == 'e' && _peekNext() == 'g') {
-        _advance(); // consume 'e'
-        _advance(); // consume 'g'
-        String text = source.substring(_start, _current - 3);
-        _addToken(TokenType.angleDegree, double.parse(text));
+
+      if (text.contains('.')) {
+        _error(_line, "Frame duration must be an integer.");
+        return;
       }
-    } else {
-      String text = source.substring(_start, _current);
-      _addToken(TokenType.number, num.parse(text));
+
+      _addToken(
+        TokenType.frameDuration,
+        int.parse(text),
+      );
+      return;
     }
+
+    // Time duration: 2.5s
+    if (_peek() == 's' || _peek() == 'S') {
+      _advance();
+
+      String text = source.substring(_start, _current - 1);
+
+      _addToken(
+        TokenType.timeDuration,
+        double.parse(text),
+      );
+      return;
+    }
+
+    // Angle degree: 180deg or 90.5deg
+    if (_peek() == 'd' &&
+        _peekNext() == 'e' &&
+        _peekAfterNext() == 'g') {
+      _advance(); // d
+      _advance(); // e
+      _advance(); // g
+
+      String text = source.substring(_start, _current - 3);
+
+      _addToken(
+        TokenType.angleDegree,
+        double.parse(text),
+      );
+      return;
+    }
+
+    // Regular number
+    String text = source.substring(_start, _current);
+
+    _addToken(
+      TokenType.number,
+      num.parse(text),
+    );
   }
 
   void _string() {
     while (_peek() != '"' && !_isAtEnd()) {
-      if (_peek() == '\n') _line++;
+      if (_peek() == '\n') {
+        _line++;
+      }
+
       _advance();
     }
 
@@ -215,28 +274,58 @@ class Scanner {
     }
 
     _advance();
-    String value = source.substring(_start + 1, _current - 1);
-    _addToken(TokenType.string, value);
+
+    String value = source.substring(
+      _start + 1,
+      _current - 1,
+    );
+
+    _addToken(
+      TokenType.string,
+      value,
+    );
   }
 
   bool _match(String expected) {
-    if (_isAtEnd()) return false;
-    if (source[_current] != expected) return false;
+    if (_isAtEnd()) {
+      return false;
+    }
+
+    if (source[_current] != expected) {
+      return false;
+    }
+
     _current++;
     return true;
   }
 
   String _peek() {
-    if (_isAtEnd()) return '\x00';
+    if (_isAtEnd()) {
+      return '\x00';
+    }
+
     return source[_current];
   }
 
   String _peekNext() {
-    if (_current + 1 >= source.length) return '\x00';
+    if (_current + 1 >= source.length) {
+      return '\x00';
+    }
+
     return source[_current + 1];
   }
 
-  String _advance() => source[_current++];
+  String _peekAfterNext() {
+    if (_current + 2 >= source.length) {
+      return '\x00';
+    }
+
+    return source[_current + 2];
+  }
+
+  String _advance() {
+    return source[_current++];
+  }
 
   bool _isAlpha(String c) {
     return (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
@@ -246,27 +335,16 @@ class Scanner {
         c == '_';
   }
 
-  bool _isAlphaNumeric(String c) => _isAlpha(c) || _isDigit(c);
+  bool _isAlphaNumeric(String c) {
+    return _isAlpha(c) || _isDigit(c);
+  }
 
   bool _isDigit(String c) {
     return c.codeUnitAt(0) >= '0'.codeUnitAt(0) &&
         c.codeUnitAt(0) <= '9'.codeUnitAt(0);
   }
 
-  void _addToken(TokenType type, [Object? literal]) {
-    String text = source.substring(_start, _current);
-    tokens.add(Token(type, text, literal, _line));
-  }
-
-  void _hexColor() {
-    while (_isHexDigit(_peek())) {
-      String text = source.substring(_start, _current);
-      _addToken(TokenType.colorHex, text);
-    }
-  }
-
   bool _isHexDigit(String c) {
-    //checks if character is a valid hexadecimal digit
     return _isDigit(c) ||
         (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
             c.codeUnitAt(0) <= 'f'.codeUnitAt(0)) ||
@@ -274,8 +352,61 @@ class Scanner {
             c.codeUnitAt(0) <= 'F'.codeUnitAt(0));
   }
 
-  void _error(int line, String message) {
-    stderr.writeln("[line $line] Error: $message");
+  void _addToken(
+    TokenType type, [
+    Object? literal,
+  ]) {
+    String text = source.substring(
+      _start,
+      _current,
+    );
+
+    tokens.add(
+      Token(
+        type,
+        text,
+        literal,
+        _line,
+      ),
+    );
+  }
+
+  void _hexColor() {
+    // Consume all hexadecimal digits after '#'.
+    while (_isHexDigit(_peek())) {
+      _advance();
+    }
+
+    String text = source.substring(
+      _start,
+      _current,
+    );
+
+    // Smooth33 supports 3-digit and 6-digit hex colors.
+    int digitCount = text.length - 1;
+
+    if (digitCount != 3 && digitCount != 6) {
+      _error(
+        _line,
+        "Invalid hex color '$text'. Expected 3 or 6 hexadecimal digits.",
+      );
+      return;
+    }
+
+    _addToken(
+      TokenType.colorHex,
+      text,
+    );
+  }
+
+  void _error(
+    int line,
+    String message,
+  ) {
+    stderr.writeln(
+      "[line $line] Error: $message",
+    );
+
     _hadError = true;
   }
 }
