@@ -43,6 +43,7 @@ enum TokenType {
   keywordSequence,
   keywordAt,
   keywordOver,
+  keywordDump,
 
   // End of file
   eof

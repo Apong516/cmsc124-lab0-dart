@@ -15,6 +15,7 @@ class Scanner {
     'sequence': TokenType.keywordSequence,
     'at': TokenType.keywordAt,
     'over': TokenType.keywordOver,
+    'dump': TokenType.keywordDump, // added mapping for dump
     'true': TokenType.boolean,
     'false': TokenType.boolean,
     'nil': TokenType.nil,
