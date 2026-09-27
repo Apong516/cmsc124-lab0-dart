@@ -15,10 +15,44 @@ class Scanner {
     'sequence': TokenType.keywordSequence,
     'at': TokenType.keywordAt,
     'over': TokenType.keywordOver,
-    'dump': TokenType.keywordDump, // added mapping for dump
+    'dump': TokenType.keywordDump,
     'true': TokenType.boolean,
     'false': TokenType.boolean,
     'nil': TokenType.nil,
+
+    // New Keywords as of 09/27
+    'bind': TokenType.keywordBind,
+    'spawn': TokenType.keywordSpawn,
+    'with': TokenType.keywordWith,
+    'as': TokenType.keywordAs,
+    'if': TokenType.keywordIf,
+    'else': TokenType.keywordElse,
+    'for': TokenType.keywordFor,
+    'while': TokenType.keywordWhile,
+    'in': TokenType.keywordIn,
+    'def': TokenType.keywordDef,
+    'var': TokenType.keywordVar,
+    'let': TokenType.keywordVar,
+
+    // Animation & Motion Keywords
+    'move': TokenType.keywordMove,
+    'rotate': TokenType.keywordRotate,
+    'scale': TokenType.keywordScale,
+    'ease': TokenType.keywordEase,
+    'loop': TokenType.keywordLoop,
+    'stagger': TokenType.keywordStagger,
+    'hold': TokenType.keywordHold,
+
+    // Primitive Keywords
+    'cube': TokenType.keywordCube,
+    'sphere': TokenType.keywordSphere,
+    'plane': TokenType.keywordPlane,
+    'cylinder': TokenType.keywordCylinder,
+    'camera': TokenType.keywordCamera,
+    'light': TokenType.keywordLight,
+    'material': TokenType.keywordMaterial,
+    'parent': TokenType.keywordParent,
+    'unparent': TokenType.keywordUnparent,
   };
 
   Scanner(this.source);
@@ -31,9 +65,6 @@ class Scanner {
     }
 
     tokens.add(Token(TokenType.eof, "", null, _line));
-
-    // Error handling is done by the caller.
-
     return tokens;
   }
 
@@ -54,6 +85,12 @@ class Scanner {
       case '}':
         _addToken(TokenType.rightBrace);
         break;
+      case '[':
+        _addToken(TokenType.leftBracket);
+        break;
+      case ']':
+        _addToken(TokenType.rightBracket);
+        break;
       case ',':
         _addToken(TokenType.comma);
         break;
@@ -68,6 +105,9 @@ class Scanner {
         break;
       case '*':
         _addToken(TokenType.star);
+        break;
+      case '%':
+        _addToken(TokenType.percent);
         break;
       case '#':
         _hexColor();
@@ -87,7 +127,7 @@ class Scanner {
         } else if (_match('-')) {
           _addToken(TokenType.atMinus);
         } else {
-          _error(_line, "Expected '+' or '-' after '@'.");
+          _addToken(TokenType.atSign);
         }
         break;
 
@@ -101,11 +141,31 @@ class Scanner {
 
       case '/':
         if (_match('/')) {
+          // Single-line comment
           while (_peek() != '\n' && !_isAtEnd()) {
             _advance();
           }
+        } else if (_match('*')) {
+          // Multi-line block comment
+          _blockComment();
         } else {
           _addToken(TokenType.slash);
+        }
+        break;
+
+      case '&':
+        if (_match('&')) {
+          _addToken(TokenType.andAnd);
+        } else {
+          _error(_line, "Expected '&' after '&'.");
+        }
+        break;
+
+      case '|':
+        if (_match('|')) {
+          _addToken(TokenType.orOr);
+        } else {
+          _error(_line, "Expected '|' after '|'.");
         }
         break;
 
@@ -113,11 +173,7 @@ class Scanner {
         _addToken(_match('=') ? TokenType.equalEqual : TokenType.equal);
         break;
       case '!':
-        if (_match('=')) {
-          _addToken(TokenType.bangEqual);
-        } else {
-          _error(_line, "Unexpected character '!'.");
-        }
+        _addToken(_match('=') ? TokenType.bangEqual : TokenType.bang);
         break;
       case '<':
         _addToken(_match('=') ? TokenType.lessEqual : TokenType.less);
@@ -148,6 +204,21 @@ class Scanner {
         }
         break;
     }
+  }
+
+  void _blockComment() {
+    while (!_isAtEnd()) {
+      if (_peek() == '\n') {
+        _line++;
+      }
+      if (_peek() == '*' && _peekNext() == '/') {
+        _advance(); // Consume '*'
+        _advance(); // Consume '/'
+        return;
+      }
+      _advance();
+    }
+    _error(_line, "Unterminated block comment.");
   }
 
   void _identifier() {
@@ -181,15 +252,31 @@ class Scanner {
       }
     }
 
+    // Check for frame durations (e.g. 30f)
     if (_peek() == 'f' || _peek() == 'F') {
+      if (_peekNext() == 'p' || _peekNext() == 'P') {
+        // Frame rate (e.g. 24fps)
+        _advance(); // consume 'f'
+        _advance(); // consume 'p'
+        if (_peek() == 's' || _peek() == 'S') {
+          _advance(); // consume 's'
+          String text = source.substring(_start, _current - 3);
+          _addToken(TokenType.frameRate, int.parse(text));
+          return;
+        }
+      }
       _advance();
       String text = source.substring(_start, _current - 1);
       _addToken(TokenType.frameDuration, int.parse(text));
-    } else if (_peek() == 's' || _peek() == 'S') {
+    }
+    // Check for time durations (e.g. 2.5s)
+    else if (_peek() == 's' || _peek() == 'S') {
       _advance();
       String text = source.substring(_start, _current - 1);
       _addToken(TokenType.timeDuration, double.parse(text));
-    } else if (_peek() == 'd' && _peekNext() == 'e') {
+    }
+    // Check for degrees (e.g. 180deg)
+    else if (_peek() == 'd' && _peekNext() == 'e') {
       _advance(); // consume 'd'
       if (_peek() == 'e' && _peekNext() == 'g') {
         _advance(); // consume 'e'
@@ -197,7 +284,19 @@ class Scanner {
         String text = source.substring(_start, _current - 3);
         _addToken(TokenType.angleDegree, double.parse(text));
       }
-    } else {
+    }
+    // Check for radians (e.g. 3.14rad)
+    else if (_peek() == 'r' && _peekNext() == 'a') {
+      _advance(); // consume 'r'
+      if (_peek() == 'a' && _peekNext() == 'd') {
+        _advance(); // consume 'a'
+        _advance(); // consume 'd'
+        String text = source.substring(_start, _current - 3);
+        _addToken(TokenType.angleRadian, double.parse(text));
+      }
+    }
+    // Default numeric literal
+    else {
       String text = source.substring(_start, _current);
       _addToken(TokenType.number, num.parse(text));
     }
@@ -217,6 +316,14 @@ class Scanner {
     _advance();
     String value = source.substring(_start + 1, _current - 1);
     _addToken(TokenType.string, value);
+  }
+
+  void _hexColor() {
+    while (_isHexDigit(_peek())) {
+      _advance();
+    }
+    String text = source.substring(_start, _current);
+    _addToken(TokenType.colorHex, text);
   }
 
   bool _match(String expected) {
@@ -258,15 +365,7 @@ class Scanner {
     tokens.add(Token(type, text, literal, _line));
   }
 
-  void _hexColor() {
-    while (_isHexDigit(_peek())) {
-      String text = source.substring(_start, _current);
-      _addToken(TokenType.colorHex, text);
-    }
-  }
-
   bool _isHexDigit(String c) {
-    //checks if character is a valid hexadecimal digit
     return _isDigit(c) ||
         (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
             c.codeUnitAt(0) <= 'f'.codeUnitAt(0)) ||

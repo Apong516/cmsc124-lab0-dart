@@ -4,6 +4,8 @@ enum TokenType {
   rightParen,
   leftBrace,
   rightBrace,
+  leftBracket,
+  rightBracket,
   comma,
   dot,
   colon, // used for property binding ("Cube:location")
@@ -12,38 +14,78 @@ enum TokenType {
   semicolon,
   slash,
   star,
+  percent, // %
+  atSign, // @
+
+  // Logical & Comparison operators
+  bang, // !
+  bangEqual, // !=
+  equal, // =
+  equalEqual, // ==
+  less, // <
+  lessEqual, // <=
+  greater, // >
+  greaterEqual, // >=
+  andAnd, // &&
+  orOr, // ||
 
   // Character operators
-  arrow,
+  arrow, // ->
   atPlus, // @+
   atMinus, // @-
-  equal,
-  equalEqual,
-  bangEqual,
-  less,
-  lessEqual,
-  greater,
-  greaterEqual,
-  dotDot,
+  dotDot, // ..
 
   // Literals
   identifier,
   string,
   number,
   angleDegree, // 180deg
-  colorHex, // #ffffff
-  frameDuration,
-  timeDuration,
+  angleRadian, // 1.57rad
+  frameRate, // 24fps
+  colorHex, // #ffffff or #fff
+  frameDuration, // 30f
+  timeDuration, // 2.5s
   boolean,
   nil,
 
-  // Keywords
+  // Fundamental Keywords
   keywordObject,
   keywordBehavior,
   keywordSequence,
   keywordAt,
   keywordOver,
   keywordDump,
+  keywordBind,
+  keywordSpawn,
+  keywordWith,
+  keywordAs,
+  keywordIf,
+  keywordElse,
+  keywordFor,
+  keywordWhile,
+  keywordIn,
+  keywordDef,
+  keywordVar,
+
+  // Animation & Motion Keywords
+  keywordMove,
+  keywordRotate,
+  keywordScale,
+  keywordEase,
+  keywordLoop,
+  keywordStagger,
+  keywordHold,
+
+  // Primitive Keywords
+  keywordCube,
+  keywordSphere,
+  keywordPlane,
+  keywordCylinder,
+  keywordCamera,
+  keywordLight,
+  keywordMaterial,
+  keywordParent,
+  keywordUnparent,
 
   // End of file
   eof
