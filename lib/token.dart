@@ -54,7 +54,6 @@ enum TokenType {
   keywordSequence,
   keywordAt,
   keywordOver,
-  keywordDump,
   keywordBind,
   keywordSpawn,
   keywordWith,
@@ -65,7 +64,7 @@ enum TokenType {
   keywordWhile,
   keywordIn,
   keywordDef,
-  keywordVar,
+  keywordLet,
 
   // Animation & Motion Keywords
   keywordMove,
