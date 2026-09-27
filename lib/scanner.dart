@@ -4,6 +4,7 @@ import 'token.dart';
 class Scanner {
   final String source;
   final List<Token> tokens = [];
+
   int _start = 0;
   int _current = 0;
   int _line = 1;
@@ -20,7 +21,7 @@ class Scanner {
     'false': TokenType.boolean,
     'nil': TokenType.nil,
 
-    // New Keywords as of 09/27
+    // Fundamental & Control Flow
     'bind': TokenType.keywordBind,
     'spawn': TokenType.keywordSpawn,
     'with': TokenType.keywordWith,
@@ -56,6 +57,7 @@ class Scanner {
   };
 
   Scanner(this.source);
+
   bool get hadError => _hadError;
 
   List<Token> scanTokens() {
@@ -72,6 +74,7 @@ class Scanner {
 
   void _scanToken() {
     String c = _advance();
+
     switch (c) {
       case '(':
         _addToken(TokenType.leftParen);
@@ -172,12 +175,15 @@ class Scanner {
       case '=':
         _addToken(_match('=') ? TokenType.equalEqual : TokenType.equal);
         break;
+
       case '!':
         _addToken(_match('=') ? TokenType.bangEqual : TokenType.bang);
         break;
+
       case '<':
         _addToken(_match('=') ? TokenType.lessEqual : TokenType.less);
         break;
+
       case '>':
         _addToken(_match('=') ? TokenType.greaterEqual : TokenType.greater);
         break;
@@ -186,6 +192,7 @@ class Scanner {
       case '\r':
       case '\t':
         break;
+
       case '\n':
         _line++;
         break;
@@ -252,10 +259,9 @@ class Scanner {
       }
     }
 
-    // Check for frame durations (e.g. 30f)
+    // Frame duration: 30f or Frame rate: 24fps
     if (_peek() == 'f' || _peek() == 'F') {
       if (_peekNext() == 'p' || _peekNext() == 'P') {
-        // Frame rate (e.g. 24fps)
         _advance(); // consume 'f'
         _advance(); // consume 'p'
         if (_peek() == 's' || _peek() == 'S') {
@@ -265,46 +271,60 @@ class Scanner {
           return;
         }
       }
-      _advance();
+      _advance(); // consume 'f'
+
       String text = source.substring(_start, _current - 1);
+
+      if (text.contains('.')) {
+        _error(_line, "Frame duration must be an integer.");
+        return;
+      }
+
       _addToken(TokenType.frameDuration, int.parse(text));
+      return;
     }
-    // Check for time durations (e.g. 2.5s)
-    else if (_peek() == 's' || _peek() == 'S') {
-      _advance();
+
+    // Time duration: 2.5s
+    if (_peek() == 's' || _peek() == 'S') {
+      _advance(); // consume 's'
+
       String text = source.substring(_start, _current - 1);
       _addToken(TokenType.timeDuration, double.parse(text));
+      return;
     }
-    // Check for degrees (e.g. 180deg)
-    else if (_peek() == 'd' && _peekNext() == 'e') {
-      _advance(); // consume 'd'
-      if (_peek() == 'e' && _peekNext() == 'g') {
-        _advance(); // consume 'e'
-        _advance(); // consume 'g'
-        String text = source.substring(_start, _current - 3);
-        _addToken(TokenType.angleDegree, double.parse(text));
-      }
+
+    // Angle degree: 180deg or 90.5deg
+    if (_peek() == 'd' && _peekNext() == 'e' && _peekAfterNext() == 'g') {
+      _advance(); // d
+      _advance(); // e
+      _advance(); // g
+
+      String text = source.substring(_start, _current - 3);
+      _addToken(TokenType.angleDegree, double.parse(text));
+      return;
     }
-    // Check for radians (e.g. 3.14rad)
-    else if (_peek() == 'r' && _peekNext() == 'a') {
-      _advance(); // consume 'r'
-      if (_peek() == 'a' && _peekNext() == 'd') {
-        _advance(); // consume 'a'
-        _advance(); // consume 'd'
-        String text = source.substring(_start, _current - 3);
-        _addToken(TokenType.angleRadian, double.parse(text));
-      }
+
+    // Angle radian: 3.14rad
+    if (_peek() == 'r' && _peekNext() == 'a' && _peekAfterNext() == 'd') {
+      _advance(); // r
+      _advance(); // a
+      _advance(); // d
+
+      String text = source.substring(_start, _current - 3);
+      _addToken(TokenType.angleRadian, double.parse(text));
+      return;
     }
-    // Default numeric literal
-    else {
-      String text = source.substring(_start, _current);
-      _addToken(TokenType.number, num.parse(text));
-    }
+
+    // Regular number
+    String text = source.substring(_start, _current);
+    _addToken(TokenType.number, num.parse(text));
   }
 
   void _string() {
     while (_peek() != '"' && !_isAtEnd()) {
-      if (_peek() == '\n') _line++;
+      if (_peek() == '\n') {
+        _line++;
+      }
       _advance();
     }
 
@@ -314,21 +334,35 @@ class Scanner {
     }
 
     _advance();
+
     String value = source.substring(_start + 1, _current - 1);
     _addToken(TokenType.string, value);
   }
 
   void _hexColor() {
+    // Consume all hexadecimal digits after '#'.
     while (_isHexDigit(_peek())) {
       _advance();
     }
+
     String text = source.substring(_start, _current);
+    int digitCount = text.length - 1;
+
+    if (digitCount != 3 && digitCount != 6) {
+      _error(
+        _line,
+        "Invalid hex color '$text'. Expected 3 or 6 hexadecimal digits.",
+      );
+      return;
+    }
+
     _addToken(TokenType.colorHex, text);
   }
 
   bool _match(String expected) {
     if (_isAtEnd()) return false;
     if (source[_current] != expected) return false;
+
     _current++;
     return true;
   }
@@ -341,6 +375,11 @@ class Scanner {
   String _peekNext() {
     if (_current + 1 >= source.length) return '\x00';
     return source[_current + 1];
+  }
+
+  String _peekAfterNext() {
+    if (_current + 2 >= source.length) return '\x00';
+    return source[_current + 2];
   }
 
   String _advance() => source[_current++];
@@ -360,17 +399,17 @@ class Scanner {
         c.codeUnitAt(0) <= '9'.codeUnitAt(0);
   }
 
-  void _addToken(TokenType type, [Object? literal]) {
-    String text = source.substring(_start, _current);
-    tokens.add(Token(type, text, literal, _line));
-  }
-
   bool _isHexDigit(String c) {
     return _isDigit(c) ||
         (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) &&
             c.codeUnitAt(0) <= 'f'.codeUnitAt(0)) ||
         (c.codeUnitAt(0) >= 'A'.codeUnitAt(0) &&
             c.codeUnitAt(0) <= 'F'.codeUnitAt(0));
+  }
+
+  void _addToken(TokenType type, [Object? literal]) {
+    String text = source.substring(_start, _current);
+    tokens.add(Token(type, text, literal, _line));
   }
 
   void _error(int line, String message) {

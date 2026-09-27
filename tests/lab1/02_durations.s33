@@ -1,1 +1,8 @@
-"Cube" 30f 3.5s -> ..
+// Durations & State Inspection
+30f 2.5s dump Cube
+
+// Angles and Colors
+180deg 90.5deg #FF5733 #00F
+
+// Property Binding & Frame Offsets
+Cube:location.x @+ 10f @- 5f
