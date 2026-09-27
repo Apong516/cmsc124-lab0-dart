@@ -26,13 +26,13 @@ Smooth33 is intended to serve as a higher-level abstraction over Blender animati
 
 ## Running it
 
-| Command | What it does |
-| --- | --- |
-| `./run <file>` | Executes a program. Available from Lab 4. |
-| `./run --tokenize <file>` | Prints the token stream. |
-| `./run --parse <file>` | Prints the parsed tree. Available in a later lab. |
-| `./run --eval <file>` | Evaluates each expression and prints its value. Available in a later lab. |
-| `./run` | Starts the REPL. |
+| Command                   | What it does                                                              |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `./run <file>`            | Executes a program. Available from Lab 4.                                 |
+| `./run --tokenize <file>` | Prints the token stream.                                                  |
+| `./run --parse <file>`    | Prints the parsed tree. Available in a later lab.                         |
+| `./run --eval <file>`     | Evaluates each expression and prints its value. Available in a later lab. |
+| `./run`                   | Starts the REPL.                                                          |
 
 For Lab 1, the primary command is:
 
@@ -65,17 +65,17 @@ The scanner processes the input character by character and uses lookahead when n
 
 ### Keywords
 
-| Keyword | Purpose |
-| --- | --- |
-| `object` | Declares a scene object bound to a Blender datablock. |
-| `behavior` | Defines a reusable motion or physics behavior. |
-| `sequence` | Defines an animation block over a specified range. |
-| `at` | Specifies frame or time markers and ranges within a sequence block. |
-| `over` | Specifies duration for interpolation or sequence execution. |
-| `dump` | Requests state inspection of an object. |
-| `true` | Boolean value representing true. |
-| `false` | Boolean value representing false. |
-| `nil` | Representation of the absence of a value. |
+| Keyword    | Purpose                                                             |
+| ---------- | ------------------------------------------------------------------- |
+| `object`   | Declares a scene object bound to a Blender datablock.               |
+| `behavior` | Defines a reusable motion or physics behavior.                      |
+| `sequence` | Defines an animation block over a specified range.                  |
+| `at`       | Specifies frame or time markers and ranges within a sequence block. |
+| `over`     | Specifies duration for interpolation or sequence execution.         |
+| `dump`     | Requests state inspection of an object.                             |
+| `true`     | Boolean value representing true.                                    |
+| `false`    | Boolean value representing false.                                   |
+| `nil`      | Representation of the absence of a value.                           |
 
 Keywords are recognized separately from identifiers.
 
@@ -89,49 +89,49 @@ object Cube dump
 
 ### Operators
 
-| Operator | Category | Operands | Associativity | Precedence |
-| --- | --- | --- | --- | --- |
-| `->` | interpolation | binary | right | 1 |
-| `=` | assignment | binary | right | 2 |
-| `==` | equality | binary | left | 3 |
-| `!=` | equality | binary | left | 3 |
-| `<` | comparison | binary | left | 4 |
-| `<=` | comparison | binary | left | 4 |
-| `>` | comparison | binary | left | 4 |
-| `>=` | comparison | binary | left | 4 |
-| `+` | arithmetic | binary | left | 5 |
-| `-` | arithmetic | binary | left | 5 |
-| `*` | arithmetic | binary | left | 6 |
-| `/` | arithmetic | binary | left | 6 |
-| `..` | range | binary | left | 7 |
+| Operator | Category      | Operands | Associativity | Precedence |
+| -------- | ------------- | -------- | ------------- | ---------- |
+| `->`     | interpolation | binary   | right         | 1          |
+| `=`      | assignment    | binary   | right         | 2          |
+| `==`     | equality      | binary   | left          | 3          |
+| `!=`     | equality      | binary   | left          | 3          |
+| `<`      | comparison    | binary   | left          | 4          |
+| `<=`     | comparison    | binary   | left          | 4          |
+| `>`      | comparison    | binary   | left          | 4          |
+| `>=`     | comparison    | binary   | left          | 4          |
+| `+`      | arithmetic    | binary   | left          | 5          |
+| `-`      | arithmetic    | binary   | left          | 5          |
+| `*`      | arithmetic    | binary   | left          | 6          |
+| `/`      | arithmetic    | binary   | left          | 6          |
+| `..`     | range         | binary   | left          | 7          |
 
 ### Additional punctuation and Week 3 operators
 
-| Symbol | Token | Purpose |
-| --- | --- | --- |
-| `:` | `COLON` | Property target binding |
-| `@+` | `ATPLUS` | Relative frame offset forward |
-| `@-` | `ATMINUS` | Relative frame offset backward |
-| `(` | `LEFTPAREN` | Grouping delimiter |
-| `)` | `RIGHTPAREN` | Grouping delimiter |
-| `{` | `LEFTBRACE` | Block delimiter |
-| `}` | `RIGHTBRACE` | Block delimiter |
-| `,` | `COMMA` | Separator |
-| `.` | `DOT` | Property/member access |
-| `;` | `SEMICOLON` | Statement delimiter |
+| Symbol | Token        | Purpose                        |
+| ------ | ------------ | ------------------------------ |
+| `:`    | `COLON`      | Property target binding        |
+| `@+`   | `ATPLUS`     | Relative frame offset forward  |
+| `@-`   | `ATMINUS`    | Relative frame offset backward |
+| `(`    | `LEFTPAREN`  | Grouping delimiter             |
+| `)`    | `RIGHTPAREN` | Grouping delimiter             |
+| `{`    | `LEFTBRACE`  | Block delimiter                |
+| `}`    | `RIGHTBRACE` | Block delimiter                |
+| `,`    | `COMMA`      | Separator                      |
+| `.`    | `DOT`        | Property/member access         |
+| `;`    | `SEMICOLON`  | Statement delimiter            |
 
 ## Literals
 
-| Kind | Syntax | Meaning |
-| --- | --- | --- |
-| number | `12`, `3.14` | Numeric value |
-| frame duration | `30f` | Duration or position measured in frames |
-| time duration | `3.5s` | Duration measured in seconds |
-| angle degree | `180deg`, `90.5deg` | Angle measured in degrees |
-| color hex | `#FF5733`, `#00F` | Hexadecimal color value |
-| string | `"Cube"`, `"Sphere"` | String value |
-| boolean | `true`, `false` | Boolean value |
-| nil | `nil` | Absence of a value |
+| Kind           | Syntax               | Meaning                                 |
+| -------------- | -------------------- | --------------------------------------- |
+| number         | `12`, `3.14`         | Numeric value                           |
+| frame duration | `30f`                | Duration or position measured in frames |
+| time duration  | `3.5s`               | Duration measured in seconds            |
+| angle degree   | `180deg`, `90.5deg`  | Angle measured in degrees               |
+| color hex      | `#FF5733`, `#00F`    | Hexadecimal color value                 |
+| string         | `"Cube"`, `"Sphere"` | String value                            |
+| boolean        | `true`, `false`      | Boolean value                           |
+| nil            | `nil`                | Absence of a value                      |
 
 ### Frame durations
 
@@ -333,7 +333,9 @@ Token(type=EOF, lexeme="", literal=null, line=8)
 
 ## Grammar
 
-[Your complete context-free grammar, current as of the latest activity.]
+expression → term ;
+term → primary ( ( "-" | "+" ) primary )\* ;
+primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
 
 ## Parse output format
 
@@ -384,9 +386,9 @@ Token(type=EOF, lexeme="", literal=null, line=8)
 
 ## Native functions
 
-| Name | Arguments | Returns | Notes |
-| --- | --- | --- | --- |
-| [name] | [count and types] | [type] | [caveats] |
+| Name   | Arguments         | Returns | Notes     |
+| ------ | ----------------- | ------- | --------- |
+| [name] | [count and types] | [type]  | [caveats] |
 
 ## Errors and diagnostics
 
@@ -413,21 +415,21 @@ object @
 
 An invalid character is reported as a lexical error on the corresponding source line.
 
-| Failure | Exit code |
-| --- | --- |
-| Lexical error | 65 |
-| Syntax error | 65 |
-| Runtime error | 70 |
+| Failure       | Exit code |
+| ------------- | --------- |
+| Lexical error | 65        |
+| Syntax error  | 65        |
+| Runtime error | 70        |
 
 ## Testing conventions
 
-| Folder | Activity | Mode | Flag |
-| --- | --- | --- | --- |
-| `tests/lab1` | Scanner | sidecar | `--tokenize` |
-| `tests/lab2` | Parser | sidecar | `--parse` |
-| `tests/lab3` | Evaluator | inline | `--eval` |
-| `tests/lab4` | Context | inline | none |
-| `tests/lab5` | Functions | inline | none |
+| Folder       | Activity  | Mode    | Flag         |
+| ------------ | --------- | ------- | ------------ |
+| `tests/lab1` | Scanner   | sidecar | `--tokenize` |
+| `tests/lab2` | Parser    | sidecar | `--parse`    |
+| `tests/lab3` | Evaluator | inline  | `--eval`     |
+| `tests/lab4` | Context   | inline  | none         |
+| `tests/lab5` | Functions | inline  | none         |
 
 ### Lab 1 tests
 
@@ -525,6 +527,6 @@ The scanner also continues scanning after lexical errors in file mode so that mu
 
 ## Changelog
 
-| Activity | What changed in the language |
-| --- | --- |
-| Lab 1 | Implemented the character-by-character lexical scanner with keywords, identifiers, numbers, strings, durations, operators, comments, line tracking, and lexical error handling. |
+| Activity | What changed in the language                                                                                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lab 1    | Implemented the character-by-character lexical scanner with keywords, identifiers, numbers, strings, durations, operators, comments, line tracking, and lexical error handling. |
