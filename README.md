@@ -71,21 +71,47 @@ The scanner processes the input character by character and uses lookahead when n
 | `behavior` | Defines a reusable motion or physics behavior.                      |
 | `sequence` | Defines an animation block over a specified range.                  |
 | `at`       | Specifies frame or time markers and ranges within a sequence block. |
+| `bind`     | Binds property targets.                                             |
+| `spawn`    | Instantiates objects dynamically.                                   |
+| `with`     | Specifies parameters or modifiers.                                  |
+| `as`       | Alias or type cast operator.                                        |
+| `if`       | Conditional branch.                                                 |
+| `else`     | Alternate conditional branch.                                       |
+| `for`      | For loop construct.                                                 |
+| `while`    | While loop construct.                                               |
+| `in`       | Iteration domain keyword.                                           |
+| `def`      | Function definition.                                                |
+| `let`      | Variable declaration.                                               |
 | `over`     | Specifies duration for interpolation or sequence execution.         |
-| `dump`     | Requests state inspection of an object.                             |
 | `true`     | Boolean value representing true.                                    |
 | `false`    | Boolean value representing false.                                   |
 | `nil`      | Representation of the absence of a value.                           |
+| `move`     | Move transformation keyword.                                        |
+| `rotate`   | Rotation transformation keyword.                                    |
+| `scale`    | Scale transformation keyword.                                       |
+| `ease`     | Easing modifier.                                                    |
+| `loop`     | Loop sequence modifier.                                             |
+| `stagger`  | Staggered sequence execution.                                       |
+| `hold`     | Hold frame state modifier.                                          |
+| `cube`     | Cube primitive keyword.                                             |
+| `sphere`   | Sphere primitive keyword.                                           |
+| `plane`    | Plane primitive keyword.                                            |
+| `cylinder` | Cylinder primitive keyword.                                         |
+| `camera`   | Camera datablock keyword.                                           |
+| `light`    | Light datablock keyword.                                            |
+| `material` | Material datablock keyword.                                         |
+| `parent`   | Parent relationship action.                                         |
+| `unparent` | Unparent action.                                                    |
 
 Keywords are recognized separately from identifiers.
 
 For example:
 
 ```text
-object Cube dump
+object Cube move
 ```
 
-`object` and `dump` are recognized as keywords, while `Cube` is recognized as an identifier.
+`object` and `move` are recognized as keywords, while `Cube` is recognized as an identifier.
 
 ### Operators
 
@@ -127,6 +153,7 @@ object Cube dump
 | number         | `12`, `3.14`         | Numeric value                           |
 | frame duration | `30f`                | Duration or position measured in frames |
 | time duration  | `3.5s`               | Duration measured in seconds            |
+| frame rate     | `24fps`, `60fps`     | Integer FPS value                       |
 | angle degree   | `180deg`, `90.5deg`  | Angle measured in degrees               |
 | color hex      | `#FF5733`, `#00F`    | Hexadecimal color value                 |
 | string         | `"Cube"`, `"Sphere"` | String value                            |
@@ -333,9 +360,7 @@ Token(type=EOF, lexeme="", literal=null, line=8)
 
 ## Grammar
 
-expression → term ;
-term → primary ( ( "-" | "+" ) primary )\* ;
-primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+[Your complete context-free grammar, current as of the latest activity.]
 
 ## Parse output format
 

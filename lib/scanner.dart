@@ -16,7 +16,6 @@ class Scanner {
     'sequence': TokenType.keywordSequence,
     'at': TokenType.keywordAt,
     'over': TokenType.keywordOver,
-    'dump': TokenType.keywordDump,
     'true': TokenType.boolean,
     'false': TokenType.boolean,
     'nil': TokenType.nil,
@@ -32,8 +31,7 @@ class Scanner {
     'while': TokenType.keywordWhile,
     'in': TokenType.keywordIn,
     'def': TokenType.keywordDef,
-    'var': TokenType.keywordVar,
-    'let': TokenType.keywordVar,
+    'let': TokenType.keywordLet,
 
     // Animation & Motion Keywords
     'move': TokenType.keywordMove,
