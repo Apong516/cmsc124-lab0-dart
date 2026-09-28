@@ -360,14 +360,24 @@ Token(type=EOF, lexeme="", literal=null, line=8)
 
 ## Grammar
 
-[Your complete context-free grammar, current as of the latest activity.]
+```text
+expression → equality ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | primary ;
+primary → NUMBER | STRING | COLOR_HEX | DURATION | ANGLE | FRAMERATE | "true" | "false" | "nil" | "(" expression ")" ;
+```
 
 ## Parse output format
 
-[One line of real `--parse` output.]
+```text
+(+ 2.0 (* 3.0 4.0))
+```
 
-- Groupings print as: `[form]`
-- Numbers print as: `[form]`
+- Groupings print as: `(group expression)`
+- Numbers print as: `2.0`
 
 ## Semantics
 
