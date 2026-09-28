@@ -39,13 +39,16 @@ void runFile(String flag, String path) {
     exit(0);
   } else if (flag == '--parse') {
     Parser parser = Parser(tokens);
-    Expr? expression = parser.parse();
+    List<Expr> expressions = parser.parseExpressions();
 
-    if (parser.hadError || expression == null) {
+    if (parser.hadError) {
       exit(65);
     }
 
-    print(AstPrinter().print(expression));
+    AstPrinter printer = AstPrinter();
+    for (Expr expression in expressions) {
+      print(printer.print(expression));
+    }
     exit(0);
   }
 }
@@ -63,12 +66,15 @@ void runRepl() {
     if (scanner.hadError) continue;
 
     // Parse the tokens into an AST expression
-    Parser parser = Parser(tokens);
-    Expr? expression = parser.parse();
 
-    // Print the parenthesized AST output if parsing succeeded
-    if (!parser.hadError && expression != null) {
-      print(AstPrinter().print(expression));
+    Parser parser = Parser(tokens);
+    List<Expr> expressions = parser.parseExpressions();
+
+    if (!parser.hadError) {
+      AstPrinter printer = AstPrinter();
+      for (Expr expression in expressions) {
+        print(printer.print(expression));
+      }
     }
   }
 }

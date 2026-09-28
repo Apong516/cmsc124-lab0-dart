@@ -22,6 +22,18 @@ class Parser {
     }
   }
 
+  List<Expr> parseExpressions() {
+    List<Expr> expressions = [];
+    while (!_isAtEnd()) {
+      Expr? expr = _expression();
+      if (expr != null) {
+        expressions.add(expr);
+      }
+      if (_hadError) break;
+    }
+    return expressions;
+  }
+
   // Grammar Cascade (Stratified Precedence)
   Expr _expression() => _equality();
 
