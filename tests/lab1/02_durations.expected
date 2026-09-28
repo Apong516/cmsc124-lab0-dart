@@ -1,6 +1,5 @@
 Token(type=FRAMEDURATION, lexeme="30f", literal=30, line=2)
 Token(type=TIMEDURATION, lexeme="2.5s", literal=2.5, line=2)
-Token(type=KEYWORDDUMP, lexeme="dump", literal=null, line=2)
 Token(type=IDENTIFIER, lexeme="Cube", literal=null, line=2)
 Token(type=ANGLEDEGREE, lexeme="180deg", literal=180.0, line=5)
 Token(type=ANGLEDEGREE, lexeme="90.5deg", literal=90.5, line=5)
