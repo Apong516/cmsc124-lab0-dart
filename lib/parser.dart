@@ -25,11 +25,15 @@ class Parser {
   List<Expr> parseExpressions() {
     List<Expr> expressions = [];
     while (!_isAtEnd()) {
-      Expr? expr = _expression();
-      if (expr != null) {
-        expressions.add(expr);
+      try {
+        //
+        Expr? expr = _expression();
+        if (expr != null) {
+          expressions.add(expr);
+        }
+      } on ParseError {
+        _synchronize();
       }
-      if (_hadError) break;
     }
     return expressions;
   }
@@ -146,6 +150,29 @@ class Parser {
   bool _isAtEnd() => _peek().type == TokenType.eof;
   Token _peek() => tokens[_current];
   Token _previous() => tokens[_current - 1];
+
+  void _synchronize() {
+    _advance(); // Consume one token always
+
+    while (!_isAtEnd()) {
+      if (_previous().type == TokenType.semicolon) return;
+
+      switch (_peek().type) {
+        case TokenType.keywordObject:
+        case TokenType.keywordBehavior:
+        case TokenType.keywordSequence:
+        case TokenType.keywordIf:
+        case TokenType.keywordFor:
+        case TokenType.keywordWhile:
+        case TokenType.keywordDef:
+        case TokenType.keywordLet:
+          return;
+        default:
+          break;
+      }
+      _advance();
+    }
+  }
 
   ParseError _error(Token token, String message) {
     _hadError = true;
