@@ -39,7 +39,27 @@ class Parser {
   }
 
   // Grammar Cascade (Stratified Precedence)
-  Expr _expression() => _equality();
+  Expr _expression() => _logicalOr();
+
+  Expr _logicalOr() {
+    Expr expr = _logicalAnd();
+    while (_match([TokenType.orOr])) {
+      Token operator = _previous();
+      Expr right = _logicalAnd();
+      expr = Binary(expr, operator, right);
+    }
+    return expr;
+  }
+
+  Expr _logicalAnd() {
+    Expr expr = _equality();
+    while (_match([TokenType.andAnd])) {
+      Token operator = _previous();
+      Expr right = _equality();
+      expr = Binary(expr, operator, right);
+    }
+    return expr;
+  }
 
   Expr _equality() {
     Expr expr = _comparison();
@@ -78,7 +98,7 @@ class Parser {
 
   Expr _factor() {
     Expr expr = _unary();
-    while (_match([TokenType.slash, TokenType.star])) {
+    while (_match([TokenType.slash, TokenType.star, TokenType.percent])) {
       Token operator = _previous();
       Expr right = _unary();
       expr = Binary(expr, operator, right);
@@ -100,6 +120,7 @@ class Parser {
     if (_match([TokenType.nil])) return Literal(null);
 
     if (_match([
+      TokenType.identifier,
       TokenType.number,
       TokenType.string,
       TokenType.colorHex,
@@ -109,7 +130,7 @@ class Parser {
       TokenType.angleRadian,
       TokenType.frameRate,
     ])) {
-      return Literal(_previous().literal);
+      return Literal(_previous().literal ?? _previous().lexeme);
     }
 
     if (_match([TokenType.leftParen])) {
