@@ -70,6 +70,7 @@ enum TokenType {
   keywordMove,
   keywordRotate,
   keywordScale,
+  keywordDump,
   keywordEase,
   keywordLoop,
   keywordStagger,

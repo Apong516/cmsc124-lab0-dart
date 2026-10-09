@@ -1,4 +1,4 @@
-// lib/parser.dart
+
 import 'dart:io';
 import 'ast.dart';
 import 'token.dart';
@@ -24,17 +24,44 @@ class Parser {
 
   List<Expr> parseExpressions() {
     List<Expr> expressions = [];
+
     while (!_isAtEnd()) {
-      try {
-        //
-        Expr? expr = _expression();
-        if (expr != null) {
-          expressions.add(expr);
-        }
-      } on ParseError {
-        _synchronize();
+      // Remember the source line where this expression begins.
+      int startingLine = _peek().line;
+
+      // Find the end of this line's token range.
+      int end = _current;
+      while (end < tokens.length &&
+          tokens[end].type != TokenType.eof &&
+          tokens[end].line == startingLine) {
+        end++;
       }
+
+      // Parse only the tokens belonging to this source line.
+      List<Token> lineTokens = tokens.sublist(_current, end);
+
+      // Give this expression its own EOF token with the correct line number.
+      int errorLine = end > _current
+          ? tokens[end - 1].line
+          : startingLine;
+
+      lineTokens.add(
+        Token(TokenType.eof, '', null, errorLine),
+      );
+
+      Parser lineParser = Parser(lineTokens);
+      Expr? expr = lineParser.parse();
+
+      if (expr != null && !lineParser.hadError) {
+        expressions.add(expr);
+      } else {
+        _hadError = true;
+      }
+
+      // Move to the first token on the next line.
+      _current = end;
     }
+
     return expressions;
   }
 
@@ -109,7 +136,7 @@ class Parser {
   Expr _unary() {
     if (_match([TokenType.bang, TokenType.minus])) {
       Token operator = _previous();
-      Expr right = _unary(); // Recursive call for chained unaries (e.g. !!true)
+      Expr right = _unary();
       return Unary(operator, right);
     }
     return _primary();
@@ -173,7 +200,7 @@ class Parser {
   Token _previous() => tokens[_current - 1];
 
   void _synchronize() {
-    _advance(); // Consume one token always
+    _advance();
 
     while (!_isAtEnd()) {
       if (_previous().type == TokenType.semicolon) return;
@@ -200,8 +227,9 @@ class Parser {
     if (token.type == TokenType.eof) {
       stderr.writeln("[line ${token.line}] Error at end: $message");
     } else {
-      stderr
-          .writeln("[line ${token.line}] Error at '${token.lexeme}': $message");
+      stderr.writeln(
+        "[line ${token.line}] Error at '${token.lexeme}': $message",
+      );
     }
     return ParseError();
   }

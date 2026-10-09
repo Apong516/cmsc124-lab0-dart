@@ -37,6 +37,7 @@ class Scanner {
     'move': TokenType.keywordMove,
     'rotate': TokenType.keywordRotate,
     'scale': TokenType.keywordScale,
+    'dump': TokenType.keywordDump,
     'ease': TokenType.keywordEase,
     'loop': TokenType.keywordLoop,
     'stagger': TokenType.keywordStagger,
@@ -216,13 +217,16 @@ class Scanner {
       if (_peek() == '\n') {
         _line++;
       }
+
       if (_peek() == '*' && _peekNext() == '/') {
         _advance(); // Consume '*'
         _advance(); // Consume '/'
         return;
       }
+
       _advance();
     }
+
     _error(_line, "Unterminated block comment.");
   }
 
@@ -257,19 +261,21 @@ class Scanner {
       }
     }
 
-    // Frame duration: 30f or Frame rate: 24fps
+    // Frame duration: 30f or frame rate: 24fps
     if (_peek() == 'f' || _peek() == 'F') {
       if (_peekNext() == 'p' || _peekNext() == 'P') {
-        _advance(); // consume 'f'
-        _advance(); // consume 'p'
+        _advance(); // Consume 'f'
+        _advance(); // Consume 'p'
+
         if (_peek() == 's' || _peek() == 'S') {
-          _advance(); // consume 's'
+          _advance(); // Consume 's'
           String text = source.substring(_start, _current - 3);
           _addToken(TokenType.frameRate, int.parse(text));
           return;
         }
       }
-      _advance(); // consume 'f'
+
+      _advance(); // Consume 'f'
 
       String text = source.substring(_start, _current - 1);
 
@@ -284,7 +290,7 @@ class Scanner {
 
     // Time duration: 2.5s
     if (_peek() == 's' || _peek() == 'S') {
-      _advance(); // consume 's'
+      _advance(); // Consume 's'
 
       String text = source.substring(_start, _current - 1);
       _addToken(TokenType.timeDuration, double.parse(text));
@@ -292,7 +298,9 @@ class Scanner {
     }
 
     // Angle degree: 180deg or 90.5deg
-    if (_peek() == 'd' && _peekNext() == 'e' && _peekAfterNext() == 'g') {
+    if (_peek() == 'd' &&
+        _peekNext() == 'e' &&
+        _peekAfterNext() == 'g') {
       _advance(); // d
       _advance(); // e
       _advance(); // g
@@ -303,7 +311,9 @@ class Scanner {
     }
 
     // Angle radian: 3.14rad
-    if (_peek() == 'r' && _peekNext() == 'a' && _peekAfterNext() == 'd') {
+    if (_peek() == 'r' &&
+        _peekNext() == 'a' &&
+        _peekAfterNext() == 'd') {
       _advance(); // r
       _advance(); // a
       _advance(); // d
