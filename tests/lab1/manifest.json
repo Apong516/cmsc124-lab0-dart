@@ -1,0 +1,5 @@
+{
+  "ext": ".s33",
+  "mode": "sidecar",
+  "flag": "--tokenize"
+}
