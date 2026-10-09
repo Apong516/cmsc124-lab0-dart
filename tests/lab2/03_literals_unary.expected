@@ -1,0 +1,7 @@
+true
+false
+nil
+123.0
+Cube
+(! (! false))
+(- (- 10.0))

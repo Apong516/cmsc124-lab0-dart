@@ -1,0 +1,4 @@
+(group (group (+ 1.0 2.0)))
+(+ 1.0 (group 2.0))
+(group 1.0)
+(group (group (group 42.0)))
