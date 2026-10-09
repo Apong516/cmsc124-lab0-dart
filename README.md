@@ -30,7 +30,7 @@ Smooth33 is intended to serve as a higher-level abstraction over Blender animati
 | ------------------------- | ------------------------------------------------------------------------- |
 | `./run <file>`            | Executes a program. Available from Lab 4.                                 |
 | `./run --tokenize <file>` | Prints the token stream.                                                  |
-| `./run --parse <file>`    | Prints the parsed tree. Available in a later lab.                         |
+| `./run --parse <file>`    | Parses expressions and prints their AST representation.                   |
 | `./run --eval <file>`     | Evaluates each expression and prints its value. Available in a later lab. |
 | `./run`                   | Starts the REPL.                                                          |
 
@@ -276,20 +276,22 @@ The offset operator and its frame duration are emitted as separate tokens.
 
 ## Comments
 
-Line comments begin with `//`.
+Line comments begin with //. The scanner ignores the rest of the line.
 
 Example:
 
-```text
 // Move the cube
 30f
-```
 
-The scanner ignores the contents of a line comment and continues scanning the following source.
+Block comments begin with /* and end with */. They may span multiple lines, and the scanner tracks newlines inside them for correct line numbering.
 
-Block comments are not currently supported.
+Example:
 
-Nesting is not supported.
+/* This is a
+   multi-line comment */
+30f
+
+Nested block comments are not supported. An unterminated block comment produces a lexical error.
 
 ## Whitespace and termination
 
@@ -360,24 +362,50 @@ Token(type=EOF, lexeme="", literal=null, line=8)
 
 ## Grammar
 
+The parser uses recursive descent with separate functions for each precedence level. Operators at the same binary precedence level are parsed left-associatively.
+
 ```text
-expression → equality ;
+expression → logicalOr ;
+
+logicalOr → logicalAnd ( "||" logicalAnd )* ;
+
+logicalAnd → equality ( "&&" equality )* ;
+
 equality → comparison ( ( "!=" | "==" ) comparison )* ;
+
 comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+
 term → factor ( ( "-" | "+" ) factor )* ;
-factor → unary ( ( "/" | "*" ) unary )* ;
+
+factor → unary ( ( "/" | "*" | "%" ) unary )* ;
+
 unary → ( "!" | "-" ) unary | primary ;
-primary → NUMBER | STRING | COLOR_HEX | DURATION | ANGLE | FRAMERATE | "true" | "false" | "nil" | "(" expression ")" ;
+
+primary → BOOLEAN
+        | "nil"
+        | IDENTIFIER
+        | NUMBER
+        | STRING
+        | COLOR_HEX
+        | FRAME_DURATION
+        | TIME_DURATION
+        | ANGLE_DEGREE
+        | ANGLE_RADIAN
+        | FRAME_RATE
+        | "(" expression ")" ;
 ```
 
 ## Parse output format
 
-```text
-(+ 2.0 (* 3.0 4.0))
-```
+The --parse command parses expressions and prints their Abstract Syntax Tree (AST) representation, with one output line per expression.
 
-- Groupings print as: `(group expression)`
-- Numbers print as: `2.0`
+For example, the expression 2 + 3 * 4 produces:
+
+(+ 2.0 (* 3.0 4.0))
+
+Groupings are represented as (group expression), and numeric literals are printed with a decimal point, such as 2.0.
+
+Each source line is parsed independently. If a syntax error occurs, the parser reports it to standard error and continues checking subsequent lines. If any syntax error occurs, the program exits with code 65 and does not print AST output for the rejected file.
 
 ## Semantics
 
@@ -537,7 +565,7 @@ Cube:location.x
 @- 5f
 ```
 
-The parser and evaluator stages are developed in later activities. Lab 1 focuses on recognizing the lexical components of the source.
+The parser is implemented in Lab 2 and supports expression parsing with operator precedence, associativity, unary operators, grouping, and Smooth33-specific literals. The evaluator is developed in a later activity.
 
 ## Design rationale
 
@@ -551,14 +579,11 @@ The scanner also continues scanning after lexical errors in file mode so that mu
 
 ## Known limitations
 
-- The parser is not yet implemented.
 - The evaluator is not yet implemented.
 - Complete semantic behavior for property target binding is not yet implemented.
 - Complete semantic behavior for `dump` is not yet implemented.
-- Block comments are not supported.
 - Runtime behavior is not yet implemented.
 - Native functions are not yet defined.
-- The current implementation focuses on the lexical requirements for Lab 1.
 
 ## Changelog
 
